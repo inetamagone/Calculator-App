@@ -28,7 +28,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedEqual(_ sender: UIButton) {
-        
+        calculatorLogic.equalTapped(screenText: screenText)
     }
     
     @IBAction func tappedClear(_ sender: UIButton) {
