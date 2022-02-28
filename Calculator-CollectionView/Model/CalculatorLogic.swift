@@ -17,6 +17,7 @@ class CalculatorLogic {
     }
     var numberExists: Bool = false
     var operandExists: Bool = false
+    var resultExists: Bool = false
     
     var lastElementIsOperand: Bool {
         guard let lastElement = items.last else { return false }
@@ -34,7 +35,7 @@ class CalculatorLogic {
     }
     
     func joiningNumbers(nextElement: String) {
-        if lastElementIsNumber == true {
+        if lastElementIsNumber == true && resultExists == false {
             guard let lastElement = items.last else { return }
             let joinedElement = lastElement + nextElement
             items.removeLast()
@@ -44,8 +45,10 @@ class CalculatorLogic {
     
     func numberTapped(screenText: UILabel, number: String) {
         numberExists = true
-        if lastElementIsNumber == true  {
+        if lastElementIsNumber == true && resultExists == false  {
             joiningNumbers(nextElement: number)
+        } else if lastElementIsNumber == true && resultExists == true {
+            displayText(screenText: screenText)
         } else {
             items.append(number)
         }
@@ -53,14 +56,18 @@ class CalculatorLogic {
     }
     
     func operandTapped(screenText: UILabel, operand: String) {
-        if numberExists == true && operandExists == false {
+        if numberExists == true && operandExists == false && lastElementIsNumber == true {
             operandExists = true
             items.append(operand)
+            resultExists = false
             displayText(screenText: screenText)
-        } else if operandExists == true {
+        } else if operandExists == true && lastElementIsNumber == true {
             calculate()
             operandExists = true
             items.append(operand)
+            resultExists = false
+            displayText(screenText: screenText)
+        } else if lastElementIsOperand == true {
             displayText(screenText: screenText)
         } else {
             screenText.text = "0"
@@ -68,8 +75,12 @@ class CalculatorLogic {
     }
     
     func equalTapped(screenText: UILabel) {
-        if items.count == 3 && numberExists == true && operandExists == true {
+        if items.count == 3 && numberExists == true && operandExists == true && lastElementIsNumber == true {
             calculate()
+            displayText(screenText: screenText)
+        } else if lastElementIsOperand == true {
+            displayText(screenText: screenText)
+        } else if resultExists == true {
             displayText(screenText: screenText)
         } else {
             screenText.text = "0"
@@ -80,6 +91,7 @@ class CalculatorLogic {
     func clearTapped(screenText: UILabel) {
         numberExists = false
         operandExists = false
+        resultExists = false
         items.removeAll()
         screenText.text = "0"
     }
@@ -89,6 +101,7 @@ class CalculatorLogic {
         guard let b = Double(items[2]) else { return 0 }
         let operand = items[1]
         var result: Double = 0
+        
         switch operand {
         case "+": result = a + b
         case "-": result = a - b
@@ -100,6 +113,7 @@ class CalculatorLogic {
         let formattedResult = formatResult(result)
         items.append(String(formattedResult))
         operandExists = false
+        resultExists = true
         return result
     }
     
